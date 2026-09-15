@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -118,8 +118,14 @@ function App() {
   const root = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeProject, setActiveProject] = useState(null);
+  const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  const [projectRotation, setProjectRotation] = useState(0);
   const [activePerson, setActivePerson] = useState(null);
   const [personClosing, setPersonClosing] = useState(false);
+  const [projectDragStart, setProjectDragStart] = useState(null);
+  const projectRotationRef = useRef({ current: 0 });
+  const projectTween = useRef(null);
+  const lastProjectInput = useRef(0);
 
   useGSAP(() => {
     const q = gsap.utils.selector(root);
@@ -151,13 +157,6 @@ function App() {
       });
     });
 
-    q(".project-card").forEach((card) => {
-      gsap.fromTo(card, { y: 60, opacity: 0 }, {
-        y: 0, opacity: 1, duration: .9, ease: "power3.out",
-        scrollTrigger: { trigger: card, start: "top 86%" }
-      });
-    });
-
     gsap.to(q(".signal-dot"), {
       scale: 1.8, opacity: .15, duration: 1.5, stagger: .25,
       repeat: -1, yoyo: true, ease: "sine.inOut"
@@ -173,6 +172,8 @@ function App() {
     return () => ScrollTrigger.getAll().forEach(t => t.kill());
   }, { scope: root });
 
+  useEffect(() => () => projectTween.current?.kill(), []);
+
   const scrollTo = (id) => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -186,6 +187,55 @@ function App() {
   const closePerson = () => {
     if (!activePerson || personClosing) return;
     setPersonClosing(true);
+  };
+
+  const rotateProjects = (direction) => {
+    const now = performance.now();
+    if (now - lastProjectInput.current < 720) return;
+    lastProjectInput.current = now;
+
+    const target = projectRotationRef.current.current + direction;
+    projectTween.current?.kill();
+    projectTween.current = gsap.to(projectRotationRef.current, {
+      current: target,
+      duration: 1.9,
+      ease: "power3.inOut",
+      overwrite: true,
+      onUpdate: () => {
+        const position = projectRotationRef.current.current;
+        setProjectRotation(position);
+        setActiveProjectIndex(((Math.round(position) % projects.length) + projects.length) % projects.length);
+      }
+    });
+  };
+
+  const getProjectPosition = (index) => {
+    const directPosition = index - projectRotation;
+    const halfway = projects.length / 2;
+    return ((((directPosition + halfway) % projects.length) + projects.length) % projects.length) - halfway;
+  };
+
+  const selectProject = (projectId) => {
+    const projectIndex = projects.findIndex(({ id }) => id === projectId);
+    if (projectIndex < 0) return;
+    const project = projects[projectIndex];
+    const currentIndex = ((Math.round(projectRotationRef.current.current) % projects.length) + projects.length) % projects.length;
+    let distance = projectIndex - currentIndex;
+    if (distance > projects.length / 2) distance -= projects.length;
+    if (distance < -projects.length / 2) distance += projects.length;
+    lastProjectInput.current = performance.now();
+    projectTween.current?.kill();
+    projectTween.current = gsap.to(projectRotationRef.current, {
+      current: projectRotationRef.current.current + distance,
+      duration: 1.9,
+      ease: "power3.inOut",
+      onUpdate: () => {
+        const position = projectRotationRef.current.current;
+        setProjectRotation(position);
+        setActiveProjectIndex(((Math.round(position) % projects.length) + projects.length) % projects.length);
+      }
+    });
+    setActiveProject(project);
   };
 
   return (
@@ -280,13 +330,55 @@ function App() {
           title="Ideas in motion."
           body="NexTech is bigger than a portfolio grid. Each venture is an experiment, a problem, a team and a version that can keep evolving."
         />
-        <div className="project-list">
-          {projects.map((project) => (
-            <article
-              className={`project-card ${project.accent}`}
+        <div
+          className="project-stage"
+          onWheel={(event) => {
+            if (Math.abs(event.deltaY) < 4 && Math.abs(event.deltaX) < 4) return;
+            event.preventDefault();
+            rotateProjects(event.deltaY > 0 || event.deltaX > 0 ? 1 : -1);
+          }}
+          onPointerDown={(event) => setProjectDragStart(event.clientX)}
+          onPointerUp={(event) => {
+            if (projectDragStart === null) return;
+            const distance = event.clientX - projectDragStart;
+            if (Math.abs(distance) > 35) rotateProjects(distance < 0 ? 1 : -1);
+            setProjectDragStart(null);
+          }}
+          onPointerCancel={() => setProjectDragStart(null)}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowRight" || event.key === "ArrowDown") rotateProjects(1);
+            if (event.key === "ArrowLeft" || event.key === "ArrowUp") rotateProjects(-1);
+          }}
+          tabIndex="0"
+          aria-label="Rotate through NexTech ventures"
+        >
+          <div className="project-stage-glow" />
+          <div className="project-floor" />
+          <div className="project-arc-label">Drag or scroll to rotate</div>
+          <div className="project-list" style={{ "--active-project": activeProjectIndex }}>
+          {projects.map((project, index) => {
+            const projectPosition = getProjectPosition(index);
+            const distance = Math.abs(projectPosition);
+            const projectScale = 1 - Math.min(0.38, distance * 0.14);
+            const projectOpacity = 1 - Math.min(0.65, distance * 0.14);
+
+            return <article
+              className={`project-card ${project.accent} ${index === activeProjectIndex ? "is-active" : ""}`}
               key={project.id}
               onClick={() => setActiveProject(project)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") setActiveProject(project);
+              }}
               tabIndex="0"
+              style={{
+                "--project-position": projectPosition,
+                "--project-depth": `${Math.min(700, distance * 220)}px`,
+                "--project-angle": `${projectPosition * -55}deg`,
+                "--project-scale": projectScale,
+                "--project-opacity": projectOpacity,
+                "--project-saturation": 1 - Math.min(0.5, distance * 0.12),
+                zIndex: Math.round((projects.length - distance) * 100)
+              }}
             >
               <div className="project-number">{project.number}</div>
               <div className="project-main">
@@ -299,8 +391,16 @@ function App() {
                 <div className="tags">{project.tags.map(t => <span key={t}>{t}</span>)}</div>
               </div>
               <div className="project-arrow"><ArrowUpRight/></div>
-            </article>
-          ))}
+            </article>;
+          })}
+          </div>
+          <div className="project-stage-footer">
+            <span>{String(activeProjectIndex + 1).padStart(2, "0")} / 05</span>
+            <div className="project-progress">
+              {projects.map((project, index) => <i className={index === activeProjectIndex ? "is-active" : ""} key={project.id} />)}
+            </div>
+            <span>NEXTECH PROJECTS</span>
+          </div>
         </div>
       </section>
 

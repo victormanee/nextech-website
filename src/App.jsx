@@ -163,7 +163,7 @@ function App() {
     });
 
     gsap.to(q(".brand-name"), {
-      rotation: 360,
+      rotationY: 360,
       transformOrigin: "50% 50%",
       ease: "none",
       scrollTrigger: { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 1 }

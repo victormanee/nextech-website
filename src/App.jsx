@@ -162,8 +162,8 @@ function App() {
       repeat: -1, yoyo: true, ease: "sine.inOut"
     });
 
-    gsap.to(q(".brand-name"), {
-      rotationY: 360,
+    gsap.to(q(".brand-logo"), {
+      rotationZ: 360,
       transformOrigin: "50% 50%",
       ease: "none",
       scrollTrigger: { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 1 }

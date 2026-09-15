@@ -82,6 +82,7 @@ main {
 }
 .brand-name {
   display: inline-block;
+  font-size: 35px;
 }
 .brand > span:last-child > span {
   color: var(--cyan);

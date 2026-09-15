@@ -87,7 +87,7 @@ const projects = [
 ];
 
 const people = [
-  ["DF", "Darren Fadhili", "Core / ACCESS", darrenFadhili, null, darrenFadhiliProfile],
+  ["DF", "Darren Fadhili", "Core / ACCESS", darrenFadhili, "https://darrenfadhili.bolt.host", darrenFadhiliProfile],
   ["VM", "Victor Manee", "Core / MwanaCheck", victorManee, "https://victormanee.vercel.app", victorManeeProfile],
   ["IM", "Isaac Maloba", "Founder / eGold", isaacMaloba, null, isaacMalobaProfile],
   ["AK", "Andreane Kaniaru", "Core", andreaneKaniaru, null, andreaneKaniaruProfile],
@@ -243,7 +243,7 @@ function App() {
       <header className="nav">
         <button className="brand" onClick={() => scrollTo("top")} aria-label="NexTech home">
           <img className="brand-logo" src={nextechLogo} alt="NexTech" />
-          <span className="brand-name">NEX<span>TECH</span></span>
+          <span className="brand-name">Nex<span>Tech</span></span>
         </button>
 
         <nav className={menuOpen ? "nav-links open" : "nav-links"}>
@@ -410,6 +410,7 @@ function App() {
           title="The crew behind the versions."
           body="NexTech is intentionally people-led. Roles can change by venture, but the common thread is a willingness to learn, build and ship."
         />
+        <p>Tap the profiles to view more.</p>
         <div className="people-grid">
           {people.map(([initials, name, role, image, url, profileImage], i) => (
             <button className="person reveal" key={name} onClick={() => openPerson({ initials, name, role, image, url, profileImage })}>

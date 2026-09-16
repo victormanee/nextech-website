@@ -13,11 +13,17 @@ import mwanacheckLogo from "../assets/mwanacheck logo.png";
 import nextechLogo from "../assets/nextech logo.png";
 import victorManee from "../assets/victor-manee.jpeg";
 import victorManeeProfile from "../assets/victor-manee-profile.png";
+import victorManeeMobileProfile from "../assets/victormanee-profile-mobile.png";
 import andreaneKaniaruProfile from "../assets/andreane-kaniaru-profile.png";
+import andreaneKaniaruMobileProfile from "../assets/andreanekaniaru-profile-mobile.png";
 import darrenFadhiliProfile from "../assets/darren-fadhili-profile.png";
+import darrenFadhiliMobileProfile from "../assets/darrenfadhili-profile-mobile.png";
 import isaacMalobaProfile from "../assets/isaac-maloba-profile.png";
+import isaacMalobaMobileProfile from "../assets/isaacmaloba-profile-mobile.png";
 import jacksonKagemaProfile from "../assets/jackson-kagema-profile.png";
+import jacksonKagemaMobileProfile from "../assets/jacksonkagema-profile-mobile.png";
 import jamesGichagaProfile from "../assets/james-gichaga-profile.png";
+import jamesGichagaMobileProfile from "../assets/jamesgichaga-profile-mobile.png";
 import {
   ArrowUpRight, ChevronDown, Code2, Cpu, Globe2, Layers3,
   Menu, Network, Play, Sparkles, X, Zap
@@ -516,7 +522,27 @@ function App() {
           <div className="project-modal person-modal" onClick={e => e.stopPropagation()}>
             {activePerson.profileImage && (
               <div className={`founder-profile-${activePerson.initials.toLowerCase()}`} aria-hidden="true">
-                <img src={activePerson.profileImage} alt="" />
+                <picture>
+                  {activePerson.name === "Victor Manee" && (
+                    <source media="(max-width: 1024px)" srcSet={victorManeeMobileProfile} />
+                  )}
+                  {activePerson.name === "Darren Fadhili" && (
+                    <source media="(max-width: 1024px)" srcSet={darrenFadhiliMobileProfile} />
+                  )}
+                  {activePerson.name === "Isaac Maloba" && (
+                    <source media="(max-width: 1024px)" srcSet={isaacMalobaMobileProfile} />
+                  )}
+                  {activePerson.name === "Andreane Kaniaru" && (
+                    <source media="(max-width: 1024px)" srcSet={andreaneKaniaruMobileProfile} />
+                  )}
+                  {activePerson.name === "James Gichaga" && (
+                    <source media="(max-width: 1024px)" srcSet={jamesGichagaMobileProfile} />
+                  )}
+                  {activePerson.name === "Jackson Kagema" && (
+                    <source media="(max-width: 1024px)" srcSet={jacksonKagemaMobileProfile} />
+                  )}
+                  <img src={activePerson.profileImage} alt="" />
+                </picture>
               </div>
             )}
             <button className="modal-close" onClick={closePerson}><X/></button>

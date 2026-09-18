@@ -125,6 +125,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeProject, setActiveProject] = useState(null);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  const [mobileCubeIndex, setMobileCubeIndex] = useState(0);
   const [projectRotation, setProjectRotation] = useState(0);
   const [activePerson, setActivePerson] = useState(null);
   const [personClosing, setPersonClosing] = useState(false);
@@ -132,6 +133,17 @@ function App() {
   const projectRotationRef = useRef({ current: 0 });
   const projectTween = useRef(null);
   const lastProjectInput = useRef(0);
+  const mobileCubeDrag = useRef(null);
+  const suppressMobileCubeClick = useRef(false);
+
+  const mobileCubeFaces = [
+    { key: "front", project: projects[0] },
+    { key: "right", project: projects[1] },
+    { key: "left", project: projects[2] },
+    { key: "top", project: projects[3] },
+    { key: "back", project: projects[4] },
+    { key: "bottom", project: null }
+  ];
 
   useGSAP(() => {
     const q = gsap.utils.selector(root);
@@ -243,6 +255,18 @@ function App() {
     });
     setActiveProject(project);
   };
+
+  const rotateMobileCube = (direction) => {
+    setMobileCubeIndex((current) => (current + direction + projects.length) % projects.length);
+  };
+
+  const mobileCubeTransform = [
+    "rotateX(-15deg) rotateY(-25deg)",
+    "rotateX(-15deg) rotateY(-115deg)",
+    "rotateX(-15deg) rotateY(65deg)",
+    "rotateX(-105deg) rotateY(-25deg)",
+    "rotateX(-15deg) rotateY(155deg)"
+  ][mobileCubeIndex];
 
   return (
     <main ref={root}>
@@ -406,6 +430,60 @@ function App() {
               {projects.map((project, index) => <i className={index === activeProjectIndex ? "is-active" : ""} key={project.id} />)}
             </div>
             <span>NEXTECH PROJECTS</span>
+          </div>
+        </div>
+        <div
+          className="mobile-cube-stage"
+          onPointerDown={(event) => {
+            mobileCubeDrag.current = { x: event.clientX, y: event.clientY };
+          }}
+          onPointerUp={(event) => {
+            const start = mobileCubeDrag.current;
+            mobileCubeDrag.current = null;
+            if (!start) return;
+            const distanceX = event.clientX - start.x;
+            const distanceY = event.clientY - start.y;
+            if (Math.abs(distanceX) < 46 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
+            suppressMobileCubeClick.current = true;
+            rotateMobileCube(distanceX < 0 ? 1 : -1);
+          }}
+          onPointerCancel={() => { mobileCubeDrag.current = null; }}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowRight") rotateMobileCube(1);
+            if (event.key === "ArrowLeft") rotateMobileCube(-1);
+          }}
+          tabIndex="0"
+          aria-label="Swipe or use arrow keys to rotate through NexTech ventures"
+        >
+          <div className="mobile-cube-glow" />
+          <div className="mobile-cube-shadow" />
+          <div className="mobile-cube" style={{ transform: mobileCubeTransform }}>
+            {mobileCubeFaces.map(({ key, project }) => project ? (
+              <button
+                className={`mobile-cube-face mobile-cube-face-${key} ${project.accent}`}
+                key={key}
+                onClick={() => {
+                  if (suppressMobileCubeClick.current) {
+                    suppressMobileCubeClick.current = false;
+                    return;
+                  }
+                  setActiveProject(project);
+                }}
+                aria-label={`Open ${project.name} project details`}
+              >
+                <span className="mobile-cube-number">{project.number}</span>
+                {project.logo && <img src={project.logo} alt={`${project.name} logo`} />}
+                <strong>{project.name}</strong>
+                <small>{project.type}</small>
+                <span className="mobile-cube-tagline">{project.tags[0]}</span>
+              </button>
+            ) : <div className="mobile-cube-face mobile-cube-face-bottom" key={key} aria-hidden="true" />)}
+          </div>
+          <div className="mobile-cube-indicator" aria-live="polite">
+            <div className="mobile-cube-dots">
+              {projects.map((project, index) => <i className={index === mobileCubeIndex ? "is-active" : ""} key={project.id} />)}
+            </div>
+            <span>{projects[mobileCubeIndex].name}</span>
           </div>
         </div>
       </section>

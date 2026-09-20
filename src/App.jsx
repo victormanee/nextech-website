@@ -181,7 +181,7 @@ function App() {
     });
 
     gsap.to(q(".brand-logo"), {
-      rotationZ: 360,
+      rotationZ: 1440,
       transformOrigin: "50% 50%",
       ease: "none",
       scrollTrigger: { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 1 }

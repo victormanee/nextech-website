@@ -279,8 +279,8 @@ function App() {
         <nav className={menuOpen ? "nav-links open" : "nav-links"}>
           {[
             ["about", "About"],
-            ["ventures", "Ventures"],
-            ["people", "People"],
+            ["projects", "Projects"],
+            ["founders", "Founders"],
             ["collab", "Collaboration"]
           ].map(([id, label]) => (
             <button key={id} onClick={() => scrollTo(id)}>{label}</button>
@@ -311,7 +311,7 @@ function App() {
             working digital products, ventures and real-world impact.
           </p>
           <div className="hero-actions">
-            <button className="button primary" onClick={() => scrollTo("ventures")}>Explore the ecosystem <ArrowUpRight size={18}/></button>
+            <button className="button primary" onClick={() => scrollTo("projects")}>Explore the ecosystem <ArrowUpRight size={18}/></button>
             <button className="button ghost" onClick={() => scrollTo("about")}><Play size={15}/> Discover NexTech</button>
           </div>
         </div>
@@ -354,11 +354,11 @@ function App() {
         </div>
       </section>
 
-      <section className="ventures" id="ventures">
+      <section className="ventures" id="projects">
         <SectionTitle
-          eyebrow="02 — Ventures"
+          eyebrow="02 — Projects"
           title="Ideas in motion."
-          body="NexTech is bigger than a portfolio grid. Each venture is an experiment, a problem, a team and a version that can keep evolving."
+          body="NexTech is bigger than a portfolio grid. Each project is an experiment, a problem, a team and a version that can keep evolving."
         />
         <div
           className="project-stage"
@@ -380,7 +380,7 @@ function App() {
             if (event.key === "ArrowLeft" || event.key === "ArrowUp") rotateProjects(-1);
           }}
           tabIndex="0"
-          aria-label="Rotate through NexTech ventures"
+          aria-label="Rotate through NexTech projects"
         >
           <div className="project-stage-glow" />
           <div className="project-floor" />
@@ -453,7 +453,7 @@ function App() {
             if (event.key === "ArrowLeft") rotateMobileCube(-1);
           }}
           tabIndex="0"
-          aria-label="Swipe or use arrow keys to rotate through NexTech ventures"
+          aria-label="Swipe or use arrow keys to rotate through NexTech projects"
         >
           <div className="mobile-cube-glow" />
           <div className="mobile-cube-shadow" />
@@ -488,11 +488,11 @@ function App() {
         </div>
       </section>
 
-      <section className="people" id="people">
+      <section className="people" id="founders">
         <SectionTitle
-          eyebrow="03 — People"
+          eyebrow="03 — Founders"
           title="The crew behind the versions."
-          body="NexTech is intentionally people-led. Roles can change by venture, but the common thread is a willingness to learn, build and ship."
+          body="NexTech is intentionally founder-led. Roles can change by project, but the common thread is a willingness to learn, build and ship."
         />
         <p>Tap the profiles to view more.</p>
         <div className="people-grid">
@@ -564,8 +564,8 @@ function App() {
         </div>
         <div className="footer-links">
           <button onClick={() => scrollTo("about")}>About</button>
-          <button onClick={() => scrollTo("ventures")}>Ventures</button>
-          <button onClick={() => scrollTo("people")}>People</button>
+          <button onClick={() => scrollTo("projects")}>Projects</button>
+          <button onClick={() => scrollTo("founders")}>Founders</button>
           <button onClick={() => window.location.href = whatsappUrl}>Collaborate</button>
         </div>
         <div className="footer-bottom">

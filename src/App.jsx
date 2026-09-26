@@ -7,11 +7,11 @@ import andreaneKaniaru from "../assets/andreane-kaniaru.png";
 import darrenFadhili from "../assets/fadhili-darren.png";
 import flashlightLogo from "../assets/flashlight-logo.png";
 import isaacMaloba from "../assets/isaac-maloba.png";
-import jacksonKagema from "../assets/jackson-kagema.jpeg";
+import jacksonKagema from "../assets/jackson-kagema.png";
 import jamesGichaga from "../assets/james-gichaga.png";
 import mwanacheckLogo from "../assets/mwanacheck logo.png";
 import nextechLogo from "../assets/nextech logo.png";
-import victorManee from "../assets/victor-manee.jpeg";
+import victorManee from "../assets/victor-manee.png";
 import victorManeeProfile from "../assets/victor-manee-profile.png";
 import victorManeeMobileProfile from "../assets/victormanee-profile-mobile.png";
 import andreaneKaniaruProfile from "../assets/andreane-kaniaru-profile.png";
@@ -128,6 +128,7 @@ function App() {
   const [mobileCubeIndex, setMobileCubeIndex] = useState(0);
   const [projectRotation, setProjectRotation] = useState(0);
   const [activePerson, setActivePerson] = useState(null);
+  const [activeFounderIndex, setActiveFounderIndex] = useState(0);
   const [personClosing, setPersonClosing] = useState(false);
   const [projectDragStart, setProjectDragStart] = useState(null);
   const projectRotationRef = useRef({ current: 0 });
@@ -135,6 +136,8 @@ function App() {
   const lastProjectInput = useRef(0);
   const mobileCubeDrag = useRef(null);
   const suppressMobileCubeClick = useRef(false);
+  const founderDragStart = useRef(null);
+  const founderDragMoved = useRef(false);
 
   const mobileCubeFaces = [
     { key: "front", project: projects[0] },
@@ -205,6 +208,31 @@ function App() {
   const closePerson = () => {
     if (!activePerson || personClosing) return;
     setPersonClosing(true);
+  };
+
+  const moveFounder = (direction) => {
+    setActiveFounderIndex((current) => (current + direction + people.length) % people.length);
+  };
+
+  const getFounderOffset = (index) => {
+    const directOffset = index - activeFounderIndex;
+    const halfway = people.length / 2;
+    return ((((directOffset + halfway) % people.length) + people.length) % people.length) - halfway;
+  };
+
+  const handleFounderPointerDown = (event) => {
+    founderDragMoved.current = false;
+    founderDragStart.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handleFounderPointerUp = (event) => {
+    if (!founderDragStart.current) return;
+    const deltaX = event.clientX - founderDragStart.current.x;
+    const deltaY = event.clientY - founderDragStart.current.y;
+    founderDragStart.current = null;
+    if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.15) return;
+    founderDragMoved.current = true;
+    moveFounder(deltaX < 0 ? 1 : -1);
   };
 
   const rotateProjects = (direction) => {
@@ -494,21 +522,64 @@ function App() {
           title="The crew behind the versions."
           body="NexTech is intentionally founder-led. Roles can change by project, but the common thread is a willingness to learn, build and ship."
         />
-        <p>Tap the profiles to view more.</p>
-        <div className="people-grid">
-          {people.map(([initials, name, role, image, url, profileImage], i) => (
-            <button className="person reveal" key={name} onClick={() => openPerson({ initials, name, role, image, url, profileImage })}>
-              <div className={`person-avatar person-avatar-${initials.toLowerCase()}`}>
-                {image ? <img src={image} alt={name} /> : <span>{initials}</span>}
-                <div className="avatar-ring"></div>
-              </div>
-              <div className="person-meta">
-                <small>0{i + 1}</small>
-                <h3>{name}</h3>
-                <p>{role}</p>
-              </div>
+        <div
+          className="founder-deck"
+          onPointerDown={handleFounderPointerDown}
+          onPointerUp={handleFounderPointerUp}
+          onPointerCancel={() => { founderDragStart.current = null; }}
+        >
+          <div className="founder-deck-stage">
+            {people.map(([initials, name, role, image, url, profileImage], index) => {
+              const offset = getFounderOffset(index);
+              const isActive = offset === 0;
+              const hidden = Math.abs(offset) > 2;
+              return (
+                <button
+                  className={`founder-card position-${offset < 0 ? `minus-${Math.abs(offset)}` : offset}${isActive ? " is-active" : ""}`}
+                  key={name}
+                  style={{
+                    "--founder-depth": `${Math.abs(offset) * -85}px`,
+                    "--founder-angle": `${offset * -7}deg`,
+                    "--founder-scale": String(Math.max(0.67, 1 - Math.abs(offset) * 0.14)),
+                    zIndex: 10 - Math.abs(offset)
+                  }}
+                  hidden={hidden}
+                  tabIndex={hidden ? -1 : 0}
+                  aria-hidden={hidden}
+                  aria-label={`${name}, ${role}${isActive ? ", active founder" : ""}`}
+                  onClick={() => {
+                    if (founderDragMoved.current) {
+                      founderDragMoved.current = false;
+                      return;
+                    }
+                    if (isActive) openPerson({ initials, name, role, image, url, profileImage });
+                    else moveFounder(offset < 0 ? -1 : 1);
+                  }}
+                >
+                  <span className="founder-card-count">0{index + 1} / 0{people.length}</span>
+                  <div className={`founder-card-image person-avatar-${initials.toLowerCase()}`}>
+                    {image ? <img src={image} alt="" draggable="false" /> : <span>{initials}</span>}
+                  </div>
+                  <div className="founder-card-meta">
+                    <h3>{name}</h3>
+                    <p>{role}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <div className="founder-deck-controls">
+            <button className="founder-nav" onClick={() => moveFounder(-1)} aria-label="Previous founder">
+              <ChevronDown size={18} />
             </button>
-          ))}
+            <span className="founder-position" aria-live="polite">
+              {String(activeFounderIndex + 1).padStart(2, "0")} / {String(people.length).padStart(2, "0")}
+            </span>
+            <button className="founder-nav is-next" onClick={() => moveFounder(1)} aria-label="Next founder">
+              <ChevronDown size={18} />
+            </button>
+          </div>
+          <p className="founder-deck-hint">Swipe · drag · arrows</p>
         </div>
         <div className="role-model reveal">
           <div><Sparkles/><span>THE MODEL</span></div>

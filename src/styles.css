@@ -1195,13 +1195,13 @@ main {
   z-index: 1;
   pointer-events: none;
   left: -450px;
-  bottom: -120px;
-  width: 900px;
+  bottom: -110px;
+  width: 450px;
   height: auto;
   overflow: visible;
   transform: rotate(-1.5deg);
   transform-origin: bottom right;
-  --profile-left: -450px;
+  --profile-left: -250px;
   --profile-enter-left: -560px;
   animation: founder-figure-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -1599,7 +1599,7 @@ main {
   .founder-profile-im {
     left: -85px;
     bottom: auto;
-    top: -190px;
+    top: -193px;
     width: 230px;
     height: 330px;
     transform: rotate(-1deg);

@@ -6,7 +6,7 @@ import accessLogo from "../assets/access logo.png";
 import andreaneKaniaru from "../assets/andreane-kaniaru.png";
 import darrenFadhili from "../assets/fadhili-darren.png";
 import flashlightLogo from "../assets/flashlight-logo.png";
-import isaacMaloba from "../assets/isaac-maloba.png";
+import isaacMaloba from "../assets/isaac-maloba.jpeg";
 import jacksonKagema from "../assets/jackson-kagema.png";
 import jamesGichaga from "../assets/james-gichaga.png";
 import mwanacheckLogo from "../assets/mwanacheck logo.png";
@@ -93,12 +93,12 @@ const projects = [
 ];
 
 const people = [
-  ["DF", "Darren Fadhili", "Core / ACCESS", darrenFadhili, "https://darrenfadhili.bolt.host", darrenFadhiliProfile],
-  ["VM", "Victor Manee", "Core / MwanaCheck", victorManee, "https://victormanee.vercel.app", victorManeeProfile],
+  ["DF", "Darren Fadhili", "Founder / ACCESS", darrenFadhili, "https://darrenfadhili.bolt.host", darrenFadhiliProfile],
+  ["VM", "Victor Manee", "Founder / MwanaCheck", victorManee, "https://victormanee.vercel.app", victorManeeProfile],
   ["IM", "Isaac Maloba", "Founder / eGold", isaacMaloba, null, isaacMalobaProfile],
-  ["AK", "Andreane Kaniaru", "Core", andreaneKaniaru, null, andreaneKaniaruProfile],
-  ["JG", "James Gichaga", "Core", jamesGichaga, null, jamesGichagaProfile],
-  ["JK", "Jackson Kagema", "Core / Sauti Kenya", jacksonKagema, null, jacksonKagemaProfile]
+  ["AK", "Andreane Kaniaru", "Founder", andreaneKaniaru, null, andreaneKaniaruProfile],
+  ["JG", "James Gichaga", "Founder", jamesGichaga, null, jamesGichagaProfile],
+  ["JK", "Jackson Kagema", "Founder / Sauti Kenya", jacksonKagema, null, jacksonKagemaProfile]
 ];
 
 const founderDetails = {

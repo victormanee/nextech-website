@@ -386,7 +386,6 @@ function App() {
         <SectionTitle
           eyebrow="02 — Projects"
           title="Ideas in motion."
-          body="NexTech is bigger than a portfolio grid. Each project is an experiment, a problem, a team and a version that can keep evolving."
         />
         <div
           className="project-stage"
@@ -520,7 +519,6 @@ function App() {
         <SectionTitle
           eyebrow="03 — Founders"
           title="The crew behind the versions."
-          body="NexTech is intentionally founder-led. Roles can change by project, but the common thread is a willingness to learn, build and ship."
         />
         <div
           className="founder-deck"

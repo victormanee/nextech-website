@@ -1655,6 +1655,18 @@ main {
   .hero-copy {
     font-size: 0.95rem;
   }
+  .manifesto-body > p,
+  .expertise-copy > p,
+  .mobile-cube-face small,
+  .mobile-cube-tagline,
+  .founder-card-count,
+  .founder-card-meta p,
+  .founder-deck-hint,
+  .role-model small,
+  .impact-note,
+  .footer-brand small {
+    display: none;
+  }
   .manifesto,
   .ventures,
   .people,
@@ -1681,9 +1693,6 @@ main {
   }
   .role-model {
     grid-template-columns: 1fr;
-  }
-  .role-model small {
-    grid-column: 1;
   }
   .role-model p {
     font-size: 1rem;

@@ -1556,6 +1556,21 @@ main {
   .ventures { order: 2; }
   .people { order: 3; }
   .footer { order: 4; }
+  .ventures > .section-title.reveal,
+  .people > .section-title.reveal {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 36px;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+  .ventures > .section-title h2,
+  .people > .section-title h2 {
+    font-size: clamp(2.3rem, 8.5vw, 4rem);
+    line-height: 0.98;
+    overflow-wrap: anywhere;
+  }
   .nav-links {
     display: none;
   }

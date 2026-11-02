@@ -25,13 +25,14 @@ import jacksonKagemaMobileProfile from "../assets/jacksonkagema-profile-mobile.p
 import jamesGichagaProfile from "../assets/james-gichaga-profile.png";
 import jamesGichagaMobileProfile from "../assets/jamesgichaga-profile-mobile.png";
 import {
-  ArrowUpRight, ChevronDown, Code2, Cpu, Globe2, Layers3,
-  Menu, Network, Play, Sparkles, X, Zap
+  ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, Code2, Cpu, Globe2, Handshake, Info, Layers3,
+  Network, Play, Sparkles, UsersRound, X, Zap
 } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const whatsappUrl = "https://wa.me/254716802450?text=hi%20NexTech%20founder%2C%20I%27m%20interested%20in%20joining%20you";
+const introPanelById = { top: 0, about: 1, collab: 2, impact: 3 };
 
 const projects = [
   {
@@ -120,9 +121,130 @@ function SectionTitle({ eyebrow, title, body }) {
   );
 }
 
+function HeroSection({ scrollTo }) {
+  return (
+    <section id="top" className="hero">
+      <div className="hero-grid"></div>
+      <div className="hero-orb"></div>
+      <div className="signal signal-1"><i className="signal-dot"></i></div>
+      <div className="signal signal-2"><i className="signal-dot"></i></div>
+
+      <div className="hero-content">
+        <div className="hero-kicker"><span></span> Independent builders · Kenya · 2026</div>
+        <h1>
+          <span className="hero-line">WE DON'T JUST</span>
+          <span className="hero-line outline">HAVE <em>IDEAS.</em></span>
+          <span className="hero-line">WE BUILD THEM.</span>
+        </h1>
+        <p className="hero-copy">
+          NexTech is a collective of young builders turning ambitious ideas into
+          working digital products, ventures and real-world impact.
+        </p>
+        <div className="hero-actions">
+          <button className="button primary" onClick={() => scrollTo("projects")}>Explore the ecosystem <ArrowUpRight size={18}/></button>
+          <button className="button ghost" onClick={() => scrollTo("about")}><Play size={15}/> Discover NexTech</button>
+        </div>
+      </div>
+
+      <div className="hero-footer">
+        <span>01 — 06</span>
+        <span className="hero-scroll">Scroll to explore <ChevronDown size={15}/></span>
+        <span>Turning visions into versions.</span>
+      </div>
+    </section>
+  );
+}
+
+function ManifestoSection() {
+  return (
+    <section className="manifesto" id="about">
+      <div className="manifesto-big reveal">
+        <span className="eyebrow">THE NEXTECH IDEA</span>
+        <h2>Technology is the <i>medium.</i><br/>Building is the <strong>mission.</strong></h2>
+      </div>
+      <div className="manifesto-body reveal">
+        <p>
+          NexTech started as a group of students with a simple instinct:
+          stop talking about what could exist and start making it exist.
+        </p>
+        <p>
+          It has evolved into a small consortium of people, ideas and ventures.
+          The model is deliberately flexible — an idea originator can lead a
+          venture, co-founders can shape it, associates can contribute expertise,
+          and the wider crew can execute.
+        </p>
+        <div className="principles">
+          <div><b>01</b><span>People first</span></div>
+          <div><b>02</b><span>Ideas into versions</span></div>
+          <div><b>03</b><span>Build with purpose</span></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MarqueeSection() {
+  return (
+    <section className="marquee">
+      <div className="marquee-track">
+        <span>PEOPLE</span><i>✦</i><span>EXPERTISE</span><i>✦</i><span>COLLABORATION</span><i>✦</i><span>VENTURES</span><i>✦</i><span>IMPACT</span><i>✦</i>
+        <span>PEOPLE</span><i>✦</i><span>EXPERTISE</span><i>✦</i><span>COLLABORATION</span><i>✦</i><span>VENTURES</span><i>✦</i><span>IMPACT</span><i>✦</i>
+      </div>
+    </section>
+  );
+}
+
+function CollaborationSection() {
+  return (
+    <section className="expertise" id="collab">
+      <div className="expertise-copy reveal">
+        <span className="eyebrow">04 — Collaboration</span>
+        <h2>Bring the problem.<br/><i>We'll build the version.</i></h2>
+        <p>
+          From student problems to businesses that need a digital edge, NexTech
+          is interested in the space between a strong idea and something people
+          can actually use.
+        </p>
+        <button className="button primary" onClick={() => window.location.href = whatsappUrl}>
+          Talk to NexTech <ArrowUpRight size={18}/>
+        </button>
+      </div>
+
+      <div className="expertise-visual reveal">
+        <div className="orbit orbit-a"></div>
+        <div className="orbit orbit-b"></div>
+        <div className="core-node"><Zap/><span>BUILD</span></div>
+        <div className="float-card c1"><Code2/><span>PRODUCT</span></div>
+        <div className="float-card c2"><Cpu/><span>AI</span></div>
+        <div className="float-card c3"><Globe2/><span>IMPACT</span></div>
+        <div className="float-card c4"><Network/><span>PEOPLE</span></div>
+      </div>
+    </section>
+  );
+}
+
+function ImpactSection() {
+  return (
+    <section className="impact">
+      <div className="impact-top reveal">
+        <span className="eyebrow">05 — Impact</span>
+        <span className="impact-note">Small team. Big surface area.</span>
+      </div>
+      <div className="impact-statement reveal">
+        <h2>From <span>school corridors</span> to <span>real businesses</span> — we build where technology meets everyday life.</h2>
+      </div>
+      <div className="impact-grid">
+        <div><b>05</b><span>Known venture directions</span></div>
+        <div><b>∞</b><span>Problems worth exploring</span></div>
+        <div><b>01</b><span>Shared philosophy</span></div>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const root = useRef(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const introFlow = useRef(null);
   const [activeProject, setActiveProject] = useState(null);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [mobileCubeIndex, setMobileCubeIndex] = useState(0);
@@ -130,12 +252,16 @@ function App() {
   const [activePerson, setActivePerson] = useState(null);
   const [activeFounderIndex, setActiveFounderIndex] = useState(0);
   const [personClosing, setPersonClosing] = useState(false);
+  const [activeIntroPanel, setActiveIntroPanel] = useState(0);
+  const [isMobileLayout, setIsMobileLayout] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [projectDragStart, setProjectDragStart] = useState(null);
   const projectRotationRef = useRef({ current: 0 });
   const projectTween = useRef(null);
   const lastProjectInput = useRef(0);
   const mobileCubeDrag = useRef(null);
   const suppressMobileCubeClick = useRef(false);
+  const introSwipeStart = useRef(null);
   const founderDragStart = useRef(null);
   const founderDragMoved = useRef(false);
 
@@ -195,8 +321,51 @@ function App() {
 
   useEffect(() => () => projectTween.current?.kill(), []);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 850px)");
+    const updateLayout = () => setIsMobileLayout(mediaQuery.matches);
+    updateLayout();
+    mediaQuery.addEventListener("change", updateLayout);
+    return () => mediaQuery.removeEventListener("change", updateLayout);
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
+    updateMotionPreference();
+    mediaQuery.addEventListener("change", updateMotionPreference);
+    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
+  }, []);
+
+  const mobileIntroCarousel = isMobileLayout && !prefersReducedMotion;
+
+  const moveIntroPanel = (index) => {
+    setActiveIntroPanel(Math.max(0, Math.min(index, 3)));
+  };
+
+  const handleIntroPointerDown = (event) => {
+    if (event.target.closest("button, a")) return;
+    introSwipeStart.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handleIntroPointerUp = (event) => {
+    const start = introSwipeStart.current;
+    introSwipeStart.current = null;
+    if (!start) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.15) return;
+    moveIntroPanel(activeIntroPanel + (deltaX < 0 ? 1 : -1));
+  };
+
   const scrollTo = (id) => {
-    setMenuOpen(false);
+    const introPanelIndex = introPanelById[id];
+    if (mobileIntroCarousel && introPanelIndex !== undefined) {
+      moveIntroPanel(introPanelIndex);
+      introFlow.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -304,7 +473,7 @@ function App() {
           <span className="brand-name">Nex<span>Tech</span></span>
         </button>
 
-        <nav className={menuOpen ? "nav-links open" : "nav-links"}>
+        <nav className="nav-links">
           {[
             ["about", "About"],
             ["projects", "Projects"],
@@ -315,72 +484,187 @@ function App() {
           ))}
           <button className="nav-cta" onClick={() => window.location.href = whatsappUrl}>Start a conversation <ArrowUpRight size={16}/></button>
         </nav>
-
-        <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
-          {menuOpen ? <X/> : <Menu/>}
-        </button>
       </header>
 
-      <section id="top" className="hero">
-        <div className="hero-grid"></div>
-        <div className="hero-orb"></div>
-        <div className="signal signal-1"><i className="signal-dot"></i></div>
-        <div className="signal signal-2"><i className="signal-dot"></i></div>
+      <nav className="mobile-bottom-nav" aria-label="Main navigation">
+        <button onClick={() => scrollTo("about")}><Info aria-hidden="true" /><span>About</span></button>
+        <button onClick={() => scrollTo("projects")}><Layers3 aria-hidden="true" /><span>Projects</span></button>
+        <button onClick={() => scrollTo("founders")}><UsersRound aria-hidden="true" /><span>Founders</span></button>
+        <button onClick={() => scrollTo("collab")}><Handshake aria-hidden="true" /><span>Connect</span></button>
+      </nav>
 
-        <div className="hero-content">
-          <div className="hero-kicker"><span></span> Independent builders · Kenya · 2026</div>
-          <h1>
-            <span className="hero-line">WE DON'T JUST</span>
-            <span className="hero-line outline">HAVE <em>IDEAS.</em></span>
-            <span className="hero-line">WE BUILD THEM.</span>
-          </h1>
-          <p className="hero-copy">
-            NexTech is a collective of young builders turning ambitious ideas into
-            working digital products, ventures and real-world impact.
-          </p>
-          <div className="hero-actions">
-            <button className="button primary" onClick={() => scrollTo("projects")}>Explore the ecosystem <ArrowUpRight size={18}/></button>
-            <button className="button ghost" onClick={() => scrollTo("about")}><Play size={15}/> Discover NexTech</button>
+      <div
+        className={`mobile-intro${mobileIntroCarousel ? " is-carousel" : ""}`}
+        ref={introFlow}
+        onPointerDown={mobileIntroCarousel ? handleIntroPointerDown : undefined}
+        onPointerUp={mobileIntroCarousel ? handleIntroPointerUp : undefined}
+        onPointerCancel={() => { introSwipeStart.current = null; }}
+      >
+        <div
+          className="intro-track"
+          style={{ transform: mobileIntroCarousel ? `translate3d(-${activeIntroPanel * 25}%, 0, 0)` : undefined }}
+        >
+          <div
+            className="intro-panel intro-panel-home"
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 0}
+            inert={mobileIntroCarousel && activeIntroPanel !== 0}
+          >
+            <section id="top" className="hero">
+              <div className="hero-grid"></div>
+              <div className="hero-orb"></div>
+              <div className="signal signal-1"><i className="signal-dot"></i></div>
+              <div className="signal signal-2"><i className="signal-dot"></i></div>
+
+              <div className="hero-content">
+                <div className="hero-kicker"><span></span> Independent builders · Kenya · 2026</div>
+                <h1>
+                  <span className="hero-line">WE DON'T JUST</span>
+                  <span className="hero-line outline">HAVE <em>IDEAS.</em></span>
+                  <span className="hero-line">WE BUILD THEM.</span>
+                </h1>
+                <p className="hero-copy">
+                  NexTech is a collective of young builders turning ambitious ideas into
+                  working digital products, ventures and real-world impact.
+                </p>
+                <div className="hero-actions">
+                  <button className="button primary" onClick={() => scrollTo("projects")}>Explore the ecosystem <ArrowUpRight size={18}/></button>
+                  <button className="button ghost" onClick={() => scrollTo("about")}><Play size={15}/> Discover NexTech</button>
+                </div>
+              </div>
+
+              <div className="hero-footer">
+                <span>01 — 06</span>
+                <span className="hero-scroll">Scroll to explore <ChevronDown size={15}/></span>
+                <span>Turning visions into versions.</span>
+              </div>
+            </section>
+          </div>
+
+          <div
+            className="intro-panel intro-panel-about"
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 1}
+            inert={mobileIntroCarousel && activeIntroPanel !== 1}
+          >
+            <section className="manifesto" id="about">
+              <div className="manifesto-big reveal">
+                <span className="eyebrow">THE NEXTECH IDEA</span>
+                <h2>Technology is the <i>medium.</i><br/>Building is the <strong>mission.</strong></h2>
+              </div>
+              <div className="manifesto-body reveal">
+                <p>
+                  NexTech started as a group of students with a simple instinct:
+                  stop talking about what could exist and start making it exist.
+                </p>
+                <p>
+                  It has evolved into a small consortium of people, ideas and ventures.
+                  The model is deliberately flexible — an idea originator can lead a
+                  venture, co-founders can shape it, associates can contribute expertise,
+                  and the wider crew can execute.
+                </p>
+                <div className="principles">
+                  <div><b>01</b><span>People first</span></div>
+                  <div><b>02</b><span>Ideas into versions</span></div>
+                  <div><b>03</b><span>Build with purpose</span></div>
+                </div>
+              </div>
+            </section>
+
+            <section className="marquee">
+              <div className="marquee-track">
+                <span>PEOPLE</span><i>✦</i><span>EXPERTISE</span><i>✦</i><span>COLLABORATION</span><i>✦</i><span>VENTURES</span><i>✦</i><span>IMPACT</span><i>✦</i>
+                <span>PEOPLE</span><i>✦</i><span>EXPERTISE</span><i>✦</i><span>COLLABORATION</span><i>✦</i><span>VENTURES</span><i>✦</i><span>IMPACT</span><i>✦</i>
+              </div>
+            </section>
+          </div>
+
+          <div
+            className="intro-panel intro-panel-collab"
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 2}
+            inert={mobileIntroCarousel && activeIntroPanel !== 2}
+          >
+            <section className="expertise" id="collab">
+              <div className="expertise-copy reveal">
+                <span className="eyebrow">04 — Collaboration</span>
+                <h2>Bring the problem.<br/><i>We'll build the version.</i></h2>
+                <p>
+                  From student problems to businesses that need a digital edge, NexTech
+                  is interested in the space between a strong idea and something people
+                  can actually use.
+                </p>
+                <button className="button primary" onClick={() => window.location.href = whatsappUrl}>
+                  Talk to NexTech <ArrowUpRight size={18}/>
+                </button>
+              </div>
+
+              <div className="expertise-visual reveal">
+                <div className="orbit orbit-a"></div>
+                <div className="orbit orbit-b"></div>
+                <div className="core-node"><Zap/><span>BUILD</span></div>
+                <div className="float-card c1"><Code2/><span>PRODUCT</span></div>
+                <div className="float-card c2"><Cpu/><span>AI</span></div>
+                <div className="float-card c3"><Globe2/><span>IMPACT</span></div>
+                <div className="float-card c4"><Network/><span>PEOPLE</span></div>
+              </div>
+            </section>
+          </div>
+
+          <div
+            className="intro-panel intro-panel-impact"
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 3}
+            inert={mobileIntroCarousel && activeIntroPanel !== 3}
+          >
+            <section className="impact">
+              <div className="impact-top reveal">
+                <span className="eyebrow">05 — Impact</span>
+                <span className="impact-note">Small team. Big surface area.</span>
+              </div>
+              <div className="impact-statement reveal">
+                <h2>From <span>school corridors</span> to <span>real businesses</span> — we build where technology meets everyday life.</h2>
+              </div>
+              <div className="impact-grid">
+                <div><b>05</b><span>Known venture directions</span></div>
+                <div><b>∞</b><span>Problems worth exploring</span></div>
+                <div><b>01</b><span>Shared philosophy</span></div>
+              </div>
+            </section>
           </div>
         </div>
-
-        <div className="hero-footer">
-          <span>01 — 06</span>
-          <span className="hero-scroll">Scroll to explore <ChevronDown size={15}/></span>
-          <span>Turning visions into versions.</span>
-        </div>
-      </section>
-
-      <section className="manifesto" id="about">
-        <div className="manifesto-big reveal">
-          <span className="eyebrow">THE NEXTECH IDEA</span>
-          <h2>Technology is the <i>medium.</i><br/>Building is the <strong>mission.</strong></h2>
-        </div>
-        <div className="manifesto-body reveal">
-          <p>
-            NexTech started as a group of students with a simple instinct:
-            stop talking about what could exist and start making it exist.
-          </p>
-          <p>
-            It has evolved into a small consortium of people, ideas and ventures.
-            The model is deliberately flexible — an idea originator can lead a
-            venture, co-founders can shape it, associates can contribute expertise,
-            and the wider crew can execute.
-          </p>
-          <div className="principles">
-            <div><b>01</b><span>People first</span></div>
-            <div><b>02</b><span>Ideas into versions</span></div>
-            <div><b>03</b><span>Build with purpose</span></div>
-          </div>
-        </div>
-      </section>
-
-      <section className="marquee">
-        <div className="marquee-track">
-          <span>PEOPLE</span><i>✦</i><span>EXPERTISE</span><i>✦</i><span>COLLABORATION</span><i>✦</i><span>VENTURES</span><i>✦</i><span>IMPACT</span><i>✦</i>
-          <span>PEOPLE</span><i>✦</i><span>EXPERTISE</span><i>✦</i><span>COLLABORATION</span><i>✦</i><span>VENTURES</span><i>✦</i><span>IMPACT</span><i>✦</i>
-        </div>
-      </section>
+        {mobileIntroCarousel && (
+          <nav className="mobile-intro-controls" aria-label="Landing page cards">
+            <button
+              className="intro-card-arrow"
+              onClick={() => moveIntroPanel(activeIntroPanel - 1)}
+              disabled={activeIntroPanel === 0}
+              aria-label="Previous card"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <div className="intro-card-pagination" aria-live="polite">
+              <span>{String(activeIntroPanel + 1).padStart(2, "0")}</span>
+              <div>
+                {[0, 1, 2, 3].map((index) => (
+                  <button
+                    key={index}
+                    className={index === activeIntroPanel ? "is-active" : ""}
+                    onClick={() => moveIntroPanel(index)}
+                    aria-label={`Go to card ${index + 1}`}
+                    aria-current={index === activeIntroPanel ? "step" : undefined}
+                  />
+                ))}
+              </div>
+              <span>04</span>
+            </div>
+            <button
+              className="intro-card-arrow"
+              onClick={() => moveIntroPanel(activeIntroPanel + 1)}
+              disabled={activeIntroPanel === 3}
+              aria-label="Next card"
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
+          </nav>
+        )}
+      </div>
 
       <section className="ventures" id="projects">
         <SectionTitle
@@ -583,46 +867,6 @@ function App() {
           <div><Sparkles/><span>THE MODEL</span></div>
           <p><strong>Brainchild / CEO</strong> → <strong>Co-founders</strong> → <strong>Associates</strong> → <strong>Crew</strong></p>
           <small>A flexible structure built around the idea, not the hierarchy.</small>
-        </div>
-      </section>
-
-      <section className="expertise" id="collab">
-        <div className="expertise-copy reveal">
-          <span className="eyebrow">04 — Collaboration</span>
-          <h2>Bring the problem.<br/><i>We'll build the version.</i></h2>
-          <p>
-            From student problems to businesses that need a digital edge, NexTech
-            is interested in the space between a strong idea and something people
-            can actually use.
-          </p>
-          <button className="button primary" onClick={() => window.location.href = whatsappUrl}>
-            Talk to NexTech <ArrowUpRight size={18}/>
-          </button>
-        </div>
-
-        <div className="expertise-visual reveal">
-          <div className="orbit orbit-a"></div>
-          <div className="orbit orbit-b"></div>
-          <div className="core-node"><Zap/><span>BUILD</span></div>
-          <div className="float-card c1"><Code2/><span>PRODUCT</span></div>
-          <div className="float-card c2"><Cpu/><span>AI</span></div>
-          <div className="float-card c3"><Globe2/><span>IMPACT</span></div>
-          <div className="float-card c4"><Network/><span>PEOPLE</span></div>
-        </div>
-      </section>
-
-      <section className="impact">
-        <div className="impact-top reveal">
-          <span className="eyebrow">05 — Impact</span>
-          <span className="impact-note">Small team. Big surface area.</span>
-        </div>
-        <div className="impact-statement reveal">
-          <h2>From <span>school corridors</span> to <span>real businesses</span> — we build where technology meets everyday life.</h2>
-        </div>
-        <div className="impact-grid">
-          <div><b>05</b><span>Known venture directions</span></div>
-          <div><b>∞</b><span>Problems worth exploring</span></div>
-          <div><b>01</b><span>Shared philosophy</span></div>
         </div>
       </section>
 

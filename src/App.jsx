@@ -340,8 +340,16 @@ function App() {
   const mobileIntroCarousel = isMobileLayout && !prefersReducedMotion;
 
   const moveIntroPanel = (index) => {
-    setActiveIntroPanel(Math.max(0, Math.min(index, 3)));
+    setActiveIntroPanel(((index % 4) + 4) % 4);
   };
+
+  useEffect(() => {
+    if (!mobileIntroCarousel) return;
+    const timeout = window.setTimeout(() => {
+      setActiveIntroPanel((current) => (current + 1) % 4);
+    }, 6000);
+    return () => window.clearTimeout(timeout);
+  }, [activeIntroPanel, mobileIntroCarousel]);
 
   const handleIntroPointerDown = (event) => {
     if (event.target.closest("button, a")) return;
@@ -634,7 +642,6 @@ function App() {
             <button
               className="intro-card-arrow"
               onClick={() => moveIntroPanel(activeIntroPanel - 1)}
-              disabled={activeIntroPanel === 0}
               aria-label="Previous card"
             >
               <ChevronLeft aria-hidden="true" />
@@ -657,7 +664,6 @@ function App() {
             <button
               className="intro-card-arrow"
               onClick={() => moveIntroPanel(activeIntroPanel + 1)}
-              disabled={activeIntroPanel === 3}
               aria-label="Next card"
             >
               <ChevronRight aria-hidden="true" />

@@ -1313,6 +1313,9 @@ main {
   .nav {
     height: 70px;
   }
+  .hero-copy {
+    display: none;
+  }
   .mobile-intro.is-carousel {
     display: block;
     order: 1;

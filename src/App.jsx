@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -121,9 +121,9 @@ function SectionTitle({ eyebrow, title, body }) {
   );
 }
 
-function HeroSection({ scrollTo }) {
+function HeroSection({ scrollTo, isClone = false }) {
   return (
-    <section id="top" className="hero">
+    <section id={isClone ? undefined : "top"} className="hero">
       <div className="hero-grid"></div>
       <div className="hero-orb"></div>
       <div className="signal signal-1"><i className="signal-dot"></i></div>
@@ -150,6 +150,25 @@ function HeroSection({ scrollTo }) {
         <span>01 — 06</span>
         <span className="hero-scroll">Scroll to explore <ChevronDown size={15}/></span>
         <span>Turning visions into versions.</span>
+      </div>
+    </section>
+  );
+}
+
+function ImpactIntroPanel() {
+  return (
+    <section className="impact">
+      <div className="impact-top reveal">
+        <span className="eyebrow">05 — Impact</span>
+        <span className="impact-note">Small team. Big surface area.</span>
+      </div>
+      <div className="impact-statement reveal">
+        <h2>From <span>school corridors</span> to <span>real businesses</span> — we build where technology meets everyday life.</h2>
+      </div>
+      <div className="impact-grid">
+        <div><b>05</b><span>Known venture directions</span></div>
+        <div><b>∞</b><span>Problems worth exploring</span></div>
+        <div><b>01</b><span>Shared philosophy</span></div>
       </div>
     </section>
   );
@@ -245,6 +264,7 @@ function ImpactSection() {
 function App() {
   const root = useRef(null);
   const introFlow = useRef(null);
+  const introTrack = useRef(null);
   const [activeProject, setActiveProject] = useState(null);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [mobileCubeIndex, setMobileCubeIndex] = useState(0);
@@ -252,7 +272,8 @@ function App() {
   const [activePerson, setActivePerson] = useState(null);
   const [activeFounderIndex, setActiveFounderIndex] = useState(0);
   const [personClosing, setPersonClosing] = useState(false);
-  const [activeIntroPanel, setActiveIntroPanel] = useState(0);
+  const [activeIntroPanel, setActiveIntroPanel] = useState(1);
+  const [introTransitionEnabled, setIntroTransitionEnabled] = useState(true);
   const [isMobileLayout, setIsMobileLayout] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [projectDragStart, setProjectDragStart] = useState(null);
@@ -309,14 +330,20 @@ function App() {
       repeat: -1, yoyo: true, ease: "sine.inOut"
     });
 
-    gsap.to(q(".brand-logo"), {
-      rotationZ: 1440,
+    const logoRotation = gsap.matchMedia();
+    const rotateLogo = (rotationZ) => gsap.to(q(".brand-logo"), {
+      rotationZ,
       transformOrigin: "50% 50%",
       ease: "none",
       scrollTrigger: { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 1 }
     });
+    logoRotation.add("(max-width: 850px)", () => rotateLogo(2880));
+    logoRotation.add("(min-width: 851px)", () => rotateLogo(1440));
 
-    return () => ScrollTrigger.getAll().forEach(t => t.kill());
+    return () => {
+      logoRotation.revert();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
   }, { scope: root });
 
   useEffect(() => () => projectTween.current?.kill(), []);
@@ -340,16 +367,35 @@ function App() {
   const mobileIntroCarousel = isMobileLayout && !prefersReducedMotion;
 
   const moveIntroPanel = (index) => {
-    setActiveIntroPanel(((index % 4) + 4) % 4);
+    setActiveIntroPanel(Math.max(0, Math.min(index, 5)));
   };
 
   useEffect(() => {
-    if (!mobileIntroCarousel) return;
+    if (!mobileIntroCarousel || activeIntroPanel === 0 || activeIntroPanel === 5) return;
     const timeout = window.setTimeout(() => {
-      setActiveIntroPanel((current) => (current + 1) % 4);
+      setActiveIntroPanel((current) => current + 1);
     }, 6000);
     return () => window.clearTimeout(timeout);
   }, [activeIntroPanel, mobileIntroCarousel]);
+
+  useLayoutEffect(() => {
+    if (introTransitionEnabled || !mobileIntroCarousel) return;
+
+    const track = introTrack.current;
+    if (!track) return;
+    track.getBoundingClientRect();
+
+    const frame = window.requestAnimationFrame(() => setIntroTransitionEnabled(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [introTransitionEnabled, mobileIntroCarousel]);
+
+  const handleIntroTransitionEnd = (event) => {
+    if (event.target !== event.currentTarget || event.propertyName !== "transform") return;
+    if (activeIntroPanel !== 0 && activeIntroPanel !== 5) return;
+
+    setIntroTransitionEnabled(false);
+    setActiveIntroPanel(activeIntroPanel === 0 ? 4 : 1);
+  };
 
   const handleIntroPointerDown = (event) => {
     if (event.target.closest("button, a")) return;
@@ -370,7 +416,7 @@ function App() {
   const scrollTo = (id) => {
     const introPanelIndex = introPanelById[id];
     if (mobileIntroCarousel && introPanelIndex !== undefined) {
-      moveIntroPanel(introPanelIndex);
+      moveIntroPanel(introPanelIndex + 1);
       introFlow.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
@@ -509,49 +555,31 @@ function App() {
         onPointerCancel={() => { introSwipeStart.current = null; }}
       >
         <div
+          ref={introTrack}
           className="intro-track"
-          style={{ transform: mobileIntroCarousel ? `translate3d(-${activeIntroPanel * 25}%, 0, 0)` : undefined }}
+          onTransitionEnd={mobileIntroCarousel ? handleIntroTransitionEnd : undefined}
+          style={{
+            transform: mobileIntroCarousel ? `translate3d(-${activeIntroPanel * (100 / 6)}%, 0, 0)` : undefined,
+            transition: introTransitionEnabled ? undefined : "none"
+          }}
         >
+          {mobileIntroCarousel && (
+            <div className="intro-panel intro-panel-impact" aria-hidden="true" inert>
+              <ImpactIntroPanel />
+            </div>
+          )}
           <div
             className="intro-panel intro-panel-home"
-            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 0}
-            inert={mobileIntroCarousel && activeIntroPanel !== 0}
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 1}
+            inert={mobileIntroCarousel && activeIntroPanel !== 1}
           >
-            <section id="top" className="hero">
-              <div className="hero-grid"></div>
-              <div className="hero-orb"></div>
-              <div className="signal signal-1"><i className="signal-dot"></i></div>
-              <div className="signal signal-2"><i className="signal-dot"></i></div>
-
-              <div className="hero-content">
-                <div className="hero-kicker"><span></span> Independent builders · Kenya · 2026</div>
-                <h1>
-                  <span className="hero-line">WE DON'T JUST</span>
-                  <span className="hero-line outline">HAVE <em>IDEAS.</em></span>
-                  <span className="hero-line">WE BUILD THEM.</span>
-                </h1>
-                <p className="hero-copy">
-                  NexTech is a collective of young builders turning ambitious ideas into
-                  working digital products, ventures and real-world impact.
-                </p>
-                <div className="hero-actions">
-                  <button className="button primary" onClick={() => scrollTo("projects")}>Explore the ecosystem <ArrowUpRight size={18}/></button>
-                  <button className="button ghost" onClick={() => scrollTo("about")}><Play size={15}/> Discover NexTech</button>
-                </div>
-              </div>
-
-              <div className="hero-footer">
-                <span>01 — 06</span>
-                <span className="hero-scroll">Scroll to explore <ChevronDown size={15}/></span>
-                <span>Turning visions into versions.</span>
-              </div>
-            </section>
+            <HeroSection scrollTo={scrollTo} />
           </div>
 
           <div
             className="intro-panel intro-panel-about"
-            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 1}
-            inert={mobileIntroCarousel && activeIntroPanel !== 1}
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 2}
+            inert={mobileIntroCarousel && activeIntroPanel !== 2}
           >
             <section className="manifesto" id="about">
               <div className="manifesto-big reveal">
@@ -587,8 +615,8 @@ function App() {
 
           <div
             className="intro-panel intro-panel-collab"
-            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 2}
-            inert={mobileIntroCarousel && activeIntroPanel !== 2}
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 3}
+            inert={mobileIntroCarousel && activeIntroPanel !== 3}
           >
             <section className="expertise" id="collab">
               <div className="expertise-copy reveal">
@@ -618,24 +646,16 @@ function App() {
 
           <div
             className="intro-panel intro-panel-impact"
-            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 3}
-            inert={mobileIntroCarousel && activeIntroPanel !== 3}
+            aria-hidden={mobileIntroCarousel && activeIntroPanel !== 4}
+            inert={mobileIntroCarousel && activeIntroPanel !== 4}
           >
-            <section className="impact">
-              <div className="impact-top reveal">
-                <span className="eyebrow">05 — Impact</span>
-                <span className="impact-note">Small team. Big surface area.</span>
-              </div>
-              <div className="impact-statement reveal">
-                <h2>From <span>school corridors</span> to <span>real businesses</span> — we build where technology meets everyday life.</h2>
-              </div>
-              <div className="impact-grid">
-                <div><b>05</b><span>Known venture directions</span></div>
-                <div><b>∞</b><span>Problems worth exploring</span></div>
-                <div><b>01</b><span>Shared philosophy</span></div>
-              </div>
-            </section>
+            <ImpactIntroPanel />
           </div>
+          {mobileIntroCarousel && (
+            <div className="intro-panel intro-panel-home" aria-hidden="true" inert>
+              <HeroSection scrollTo={scrollTo} isClone />
+            </div>
+          )}
         </div>
         {mobileIntroCarousel && (
           <nav className="mobile-intro-controls" aria-label="Landing page cards">
@@ -647,15 +667,15 @@ function App() {
               <ChevronLeft aria-hidden="true" />
             </button>
             <div className="intro-card-pagination" aria-live="polite">
-              <span>{String(activeIntroPanel + 1).padStart(2, "0")}</span>
+              <span>{String(activeIntroPanel === 0 ? 4 : activeIntroPanel === 5 ? 1 : activeIntroPanel).padStart(2, "0")}</span>
               <div>
                 {[0, 1, 2, 3].map((index) => (
                   <button
                     key={index}
-                    className={index === activeIntroPanel ? "is-active" : ""}
-                    onClick={() => moveIntroPanel(index)}
+                    className={index + 1 === (activeIntroPanel === 0 ? 4 : activeIntroPanel === 5 ? 1 : activeIntroPanel) ? "is-active" : ""}
+                    onClick={() => moveIntroPanel(index + 1)}
                     aria-label={`Go to card ${index + 1}`}
-                    aria-current={index === activeIntroPanel ? "step" : undefined}
+                    aria-current={index + 1 === (activeIntroPanel === 0 ? 4 : activeIntroPanel === 5 ? 1 : activeIntroPanel) ? "step" : undefined}
                   />
                 ))}
               </div>

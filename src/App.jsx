@@ -216,6 +216,14 @@ function MarqueeSection() {
 function CollaborationSection() {
   return (
     <section className="expertise" id="collab">
+      <a
+        className="collab-contact"
+        href={whatsappUrl}
+        aria-label="Talk to NexTech"
+        title="Talk to NexTech"
+      >
+        <ArrowUpRight size={22} aria-hidden="true" />
+      </a>
       <div className="expertise-copy reveal">
         <span className="eyebrow">04 — Collaboration</span>
         <h2>Bring the problem.<br/><i>We'll build the version.</i></h2>
@@ -224,9 +232,6 @@ function CollaborationSection() {
           is interested in the space between a strong idea and something people
           can actually use.
         </p>
-        <button className="button primary" onClick={() => window.location.href = whatsappUrl}>
-          Talk to NexTech <ArrowUpRight size={18}/>
-        </button>
       </div>
 
       <div className="expertise-visual reveal">
@@ -619,6 +624,14 @@ function App() {
             inert={mobileIntroCarousel && activeIntroPanel !== 3}
           >
             <section className="expertise" id="collab">
+              <a
+                className="collab-contact"
+                href={whatsappUrl}
+                aria-label="Talk to NexTech"
+                title="Talk to NexTech"
+              >
+                <ArrowUpRight size={22} aria-hidden="true" />
+              </a>
               <div className="expertise-copy reveal">
                 <span className="eyebrow">04 — Collaboration</span>
                 <h2>Bring the problem.<br/><i>We'll build the version.</i></h2>
@@ -627,9 +640,6 @@ function App() {
                   is interested in the space between a strong idea and something people
                   can actually use.
                 </p>
-                <button className="button primary" onClick={() => window.location.href = whatsappUrl}>
-                  Talk to NexTech <ArrowUpRight size={18}/>
-                </button>
               </div>
 
               <div className="expertise-visual reveal">

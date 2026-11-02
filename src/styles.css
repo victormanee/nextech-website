@@ -842,10 +842,35 @@ main {
 
 .expertise {
   min-height: 800px;
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 7vw;
   align-items: center;
+}
+.collab-contact {
+  position: absolute;
+  z-index: 2;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(220, 240, 255, 0.24);
+  border-radius: 50%;
+  background: rgba(6, 16, 29, 0.78);
+  color: var(--cyan);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.collab-contact:hover {
+  transform: translateY(-2px);
+  border-color: var(--cyan);
+  background: rgba(83, 231, 255, 0.12);
+}
+.collab-contact:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
 }
 .expertise-copy h2 {
   font-size: clamp(3.2rem, 6vw, 6.5rem);

@@ -11,6 +11,8 @@ import jacksonKagema from "../assets/jackson-kagema.png";
 import jamesGichaga from "../assets/james-gichaga.png";
 import mwanacheckLogo from "../assets/mwanacheck logo.png";
 import nextechLogo from "../assets/nextech logo.png";
+import threeButtonMenu from "../assets/three-button-menu.png";
+import upRightArrow from "../assets/up-right-arrow.png";
 import victorManee from "../assets/victor-manee.png";
 import victorManeeProfile from "../assets/victor-manee-profile.png";
 import victorManeeMobileProfile from "../assets/victormanee-profile-mobile.png";
@@ -110,6 +112,66 @@ const founderDetails = {
   "James Gichaga": "A core NexTech builder contributing skills, energy and practical thinking across the collective.",
   "Jackson Kagema": "A core NexTech builder helping develop Sauti Kenya and the collective's community-focused work."
 };
+
+const navigationContext = {
+  top: { selector: "#top" },
+  about: {
+    selector: "#about",
+    lead: "Independent builders.",
+    emphasis: "Collective ambition."
+  },
+  marquee: {
+    selector: ".marquee",
+    lead: "People. Expertise.",
+    emphasis: "Collaboration. Ventures. Impact."
+  },
+  projects: {
+    selector: "#projects",
+    lead: `${projects.length} ideas.`,
+    emphasis: "Countless possibilities."
+  },
+  founders: {
+    selector: "#founders",
+    lead: `${people.length} founders.`,
+    emphasis: "One vision."
+  },
+  collab: {
+    selector: "#collab",
+    lead: "Great things happen",
+    emphasis: "together."
+  },
+  impact: {
+    selector: ".impact",
+    lead: "Small team.",
+    emphasis: "Big surface area."
+  },
+  footer: {
+    selector: ".footer",
+    lead: "Turning visions into",
+    emphasis: "versions."
+  }
+};
+
+const getContextMessage = (sectionId) => {
+  const context = navigationContext[sectionId];
+  if (!context?.lead) return "";
+  return context.emphasis ? `${context.lead} ${context.emphasis}` : context.lead;
+};
+
+function ContextText({ text, sectionId }) {
+  const context = navigationContext[sectionId];
+  if (!context?.lead || !context.emphasis) return text;
+
+  const accentStart = context.lead.length + 1;
+  if (text.length <= accentStart) return text;
+
+  return (
+    <>
+      <span>{text.slice(0, accentStart)}</span>
+      <strong>{text.slice(accentStart)}</strong>
+    </>
+  );
+}
 
 function SectionTitle({ eyebrow, title, body }) {
   return (
@@ -278,12 +340,23 @@ function App() {
   const [activeFounderIndex, setActiveFounderIndex] = useState(0);
   const [personClosing, setPersonClosing] = useState(false);
   const [activeIntroPanel, setActiveIntroPanel] = useState(1);
+  const [activeSection, setActiveSection] = useState("top");
+  const [displayedContextSection, setDisplayedContextSection] = useState("top");
+  const [typedContextText, setTypedContextText] = useState("");
+  const [contextTyping, setContextTyping] = useState(false);
+  const [floatingMenuOpen, setFloatingMenuOpen] = useState(false);
+  const [floatingMenuPinned, setFloatingMenuPinned] = useState(false);
+  const [floatingMenuHovered, setFloatingMenuHovered] = useState(false);
   const [introTransitionEnabled, setIntroTransitionEnabled] = useState(true);
   const [isMobileLayout, setIsMobileLayout] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [projectDragStart, setProjectDragStart] = useState(null);
   const projectRotationRef = useRef({ current: 0 });
   const projectTween = useRef(null);
+  const floatingMenuRef = useRef(null);
+  const threeMenuButtonRef = useRef(null);
+  const contextTimersRef = useRef([]);
+  const typedContextTextRef = useRef("");
   const lastProjectInput = useRef(0);
   const mobileCubeDrag = useRef(null);
   const suppressMobileCubeClick = useRef(false);
@@ -362,6 +435,191 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 851px)");
+    let observer;
+
+    const updateFooterAtPageEnd = () => {
+      if (
+        desktopQuery.matches &&
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1
+      ) {
+        setActiveSection((current) => current === "footer" ? current : "footer");
+      }
+    };
+
+    const observeSections = () => {
+      observer?.disconnect();
+      observer = undefined;
+
+      if (!desktopQuery.matches) {
+        setActiveSection("top");
+        return;
+      }
+
+      const sections = Object.entries(navigationContext)
+        .map(([id, context]) => ({
+          id,
+          element: root.current?.querySelector(context.selector)
+        }))
+        .filter(({ element }) => element);
+      const activationLine = window.innerHeight * 0.395;
+      const activationBand = Math.max(1, window.innerHeight * 0.01);
+      const bottomInset = Math.max(0, window.innerHeight - activationLine - activationBand);
+
+      observer = new IntersectionObserver(() => {
+        if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1) {
+          setActiveSection((current) => current === "footer" ? current : "footer");
+          return;
+        }
+
+        const activationY = activationLine + activationBand / 2;
+        const currentSection = sections.find(({ element }) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.top <= activationY && bounds.bottom > activationY;
+        });
+
+        if (currentSection) {
+          setActiveSection((current) => current === currentSection.id ? current : currentSection.id);
+        }
+      }, { rootMargin: `-${activationLine}px 0px -${bottomInset}px 0px` });
+
+      sections.forEach(({ element }) => observer.observe(element));
+      updateFooterAtPageEnd();
+    };
+
+    observeSections();
+    desktopQuery.addEventListener("change", observeSections);
+    window.addEventListener("resize", observeSections);
+    window.addEventListener("scroll", updateFooterAtPageEnd, { passive: true });
+    return () => {
+      observer?.disconnect();
+      desktopQuery.removeEventListener("change", observeSections);
+      window.removeEventListener("resize", observeSections);
+      window.removeEventListener("scroll", updateFooterAtPageEnd);
+    };
+  }, []);
+
+  useEffect(() => {
+    const clearContextTimers = () => {
+      contextTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+      contextTimersRef.current = [];
+    };
+
+    const scheduleContextTimer = (callback, delay) => {
+      const timer = window.setTimeout(() => {
+        contextTimersRef.current = contextTimersRef.current.filter((item) => item !== timer);
+        callback();
+      }, delay);
+      contextTimersRef.current.push(timer);
+      return timer;
+    };
+
+    const setTypedText = (text) => {
+      typedContextTextRef.current = text;
+      setTypedContextText(text);
+    };
+
+    clearContextTimers();
+
+    if (activeSection === "top") {
+      setDisplayedContextSection("top");
+      setTypedText("");
+      setContextTyping(false);
+      setFloatingMenuPinned(false);
+      setFloatingMenuHovered(false);
+      return clearContextTimers;
+    }
+
+    const targetMessage = getContextMessage(activeSection);
+
+    if (prefersReducedMotion) {
+      setDisplayedContextSection(activeSection);
+      setTypedText(targetMessage);
+      setContextTyping(false);
+      return clearContextTimers;
+    }
+
+    if (displayedContextSection === "top") {
+      setDisplayedContextSection(activeSection);
+      setContextTyping(true);
+      let nextIndex = 0;
+      const typeNextCharacter = () => {
+        nextIndex += 1;
+        setTypedText(targetMessage.slice(0, nextIndex));
+        if (nextIndex < targetMessage.length) {
+          scheduleContextTimer(typeNextCharacter, 42);
+        } else {
+          setContextTyping(false);
+        }
+      };
+      scheduleContextTimer(typeNextCharacter, 40);
+      return clearContextTimers;
+    }
+
+    if (activeSection === displayedContextSection) {
+      return clearContextTimers;
+    }
+
+    setContextTyping(true);
+    let eraseText = typedContextTextRef.current;
+
+    const eraseNextCharacter = () => {
+      eraseText = eraseText.slice(0, -1);
+      setTypedText(eraseText);
+      if (eraseText.length > 0) {
+        scheduleContextTimer(eraseNextCharacter, 24);
+        return;
+      }
+
+      scheduleContextTimer(() => {
+        setDisplayedContextSection(activeSection);
+        let nextIndex = 0;
+        const typeNextCharacter = () => {
+          nextIndex += 1;
+          setTypedText(targetMessage.slice(0, nextIndex));
+          if (nextIndex < targetMessage.length) {
+            scheduleContextTimer(typeNextCharacter, 42);
+          } else {
+            setContextTyping(false);
+          }
+        };
+        scheduleContextTimer(typeNextCharacter, 40);
+      }, 180);
+    };
+
+    scheduleContextTimer(eraseNextCharacter, 24);
+    return clearContextTimers;
+  }, [activeSection, prefersReducedMotion]);
+
+  useEffect(() => {
+    setFloatingMenuOpen(floatingMenuPinned || floatingMenuHovered);
+  }, [floatingMenuPinned, floatingMenuHovered]);
+
+  useEffect(() => {
+    if (!floatingMenuOpen) return;
+
+    const handlePointerDown = (event) => {
+      if (!floatingMenuRef.current?.contains(event.target)) {
+        setFloatingMenuPinned(false);
+        setFloatingMenuHovered(false);
+      }
+    };
+    const handleKeyDown = (event) => {
+      if (event.key !== "Escape") return;
+      setFloatingMenuPinned(false);
+      setFloatingMenuHovered(false);
+      threeMenuButtonRef.current?.focus();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [floatingMenuOpen]);
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
     updateMotionPreference();
@@ -370,6 +628,7 @@ function App() {
   }, []);
 
   const mobileIntroCarousel = isMobileLayout && !prefersReducedMotion;
+  const contextSectionToDisplay = displayedContextSection === "top" ? activeSection : displayedContextSection;
 
   const moveIntroPanel = (index) => {
     setActiveIntroPanel(Math.max(0, Math.min(index, 5)));
@@ -526,23 +785,112 @@ function App() {
 
   return (
     <main ref={root}>
-      <header className="nav">
+      <header className={`nav${activeSection !== "top" ? " is-floating" : ""}`}>
         <button className="brand" onClick={() => scrollTo("top")} aria-label="NexTech home">
           <img className="brand-logo" src={nextechLogo} alt="NexTech" />
           <span className="brand-name">Nex<span>Tech</span></span>
         </button>
 
-        <nav className="nav-links">
-          {[
-            ["about", "About"],
-            ["projects", "Projects"],
-            ["founders", "Founders"],
-            ["collab", "Collaboration"]
-          ].map(([id, label]) => (
-            <button key={id} onClick={() => scrollTo(id)}>{label}</button>
-          ))}
-          <button className="nav-cta" onClick={() => window.location.href = whatsappUrl}>Start a conversation <ArrowUpRight size={16}/></button>
-        </nav>
+        <div
+          className="nav-links"
+          role={activeSection === "top" ? "navigation" : undefined}
+          aria-label={activeSection === "top" ? "Main navigation" : undefined}
+        >
+          {activeSection === "top" ? (
+            <>
+              {[
+                ["about", "About"],
+                ["projects", "Projects"],
+                ["founders", "Founders"],
+                ["collab", "Collaboration"]
+              ].map(([id, label]) => (
+                <button key={id} onClick={() => scrollTo(id)}>{label}</button>
+              ))}
+              <button
+                className="nav-cta"
+                aria-label="Start a conversation"
+                onClick={() => window.location.href = whatsappUrl}
+              >
+                <span className="nav-cta-label">Start a conversation</span>
+                <ArrowUpRight size={16}/>
+              </button>
+            </>
+          ) : (
+            <>
+              <div
+                className="floating-menu-anchor"
+                ref={floatingMenuRef}
+                onMouseEnter={() => setFloatingMenuHovered(true)}
+                onMouseLeave={() => setFloatingMenuHovered(false)}
+              >
+                <button
+                  className="three-menu-button"
+                  ref={threeMenuButtonRef}
+                  type="button"
+                  aria-label={floatingMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                  aria-expanded={floatingMenuOpen}
+                  aria-controls="floating-navigation-menu"
+                  onClick={() => setFloatingMenuPinned((pinned) => {
+                    if (pinned) setFloatingMenuHovered(false);
+                    return !pinned;
+                  })}
+                >
+                  <img src={threeButtonMenu} alt="" />
+                </button>
+                <nav
+                  id="floating-navigation-menu"
+                  className={`floating-navigation${floatingMenuOpen ? " is-open" : ""}`}
+                  aria-label="Main navigation"
+                  aria-hidden={!floatingMenuOpen}
+                  inert={!floatingMenuOpen}
+                >
+                  {[
+                    ["about", "About"],
+                    ["projects", "Projects"],
+                    ["founders", "Founders"],
+                    ["collab", "Collaboration"]
+                  ].map(([id, label]) => (
+                    <button
+                      className="floating-navigation-item"
+                      key={id}
+                      onClick={() => {
+                        setFloatingMenuPinned(false);
+                        setFloatingMenuHovered(false);
+                        scrollTo(id);
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                  <a
+                    className="floating-navigation-item floating-navigation-cta"
+                    href={whatsappUrl}
+                    onClick={() => {
+                      setFloatingMenuPinned(false);
+                      setFloatingMenuHovered(false);
+                    }}
+                  >
+                    Start a conversation <ArrowUpRight size={16} aria-hidden="true" />
+                  </a>
+                </nav>
+              </div>
+              <div
+                className="nav-context"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <span className="nav-context-text">
+                  <ContextText text={typedContextText} sectionId={contextSectionToDisplay} />
+                  {contextTyping && <span className="nav-context-cursor" aria-hidden="true" />}
+                </span>
+              </div>
+              <a className="talk-to-us-button" href={whatsappUrl} aria-label="Talk to Us">
+                <img src={upRightArrow} alt="" />
+                <span className="talk-to-us-tooltip" role="tooltip" aria-hidden="true">Talk to Us</span>
+              </a>
+            </>
+          )}
+        </div>
       </header>
 
       <nav className="mobile-bottom-nav" aria-label="Main navigation">
